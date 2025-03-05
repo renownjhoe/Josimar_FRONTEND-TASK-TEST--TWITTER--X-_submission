@@ -1,15 +1,38 @@
+// src/store/slices/otpSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { sendOTP } from '../../services/twitterAPI';
+import axios from 'axios';
 
+// Backend API base URL (adjust if deployed)
+const BACKEND_API_URL = 'http://localhost:3001';
+
+// Generate and send OTP via DM
 export const generateOTP = createAsyncThunk(
   'otp/generateOTP',
-  async (token, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const otp = Math.floor(100000 + Math.random() * 900000);
-      await sendOTP(token, otp);
+      const state = getState();
+      const accessToken = state.auth.token;
+      const accessTokenSecret = state.auth.tokenSecret;
+      const userId = state.auth.user.user_id;
+
+      if (!accessToken || !accessTokenSecret || !userId) {
+        throw new Error('Missing authentication details');
+      }
+
+      // Generate a 6-digit OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Send the OTP via backend endpoint
+      await axios.post(`${BACKEND_API_URL}/send-dm`, {
+        access_token: accessToken,
+        access_token_secret: accessTokenSecret,
+        user_id: userId,
+        message: `Your verification code is: ${otp}`,
+      });
+
       return otp;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -17,19 +40,14 @@ export const generateOTP = createAsyncThunk(
 const otpSlice = createSlice({
   name: 'otp',
   initialState: {
-    code: null,
-    isVerified: false,
+    otp: null,
     isLoading: false,
-    error: null
+    error: null,
   },
   reducers: {
-    verifyOTP: (state, action) => {
-      state.isVerified = state.code === action.payload;
+    clearOTP: (state) => {
+      state.otp = null;
     },
-    resetOTP: (state) => {
-      state.code = null;
-      state.isVerified = false;
-    }
   },
   extraReducers: (builder) => {
     builder
@@ -39,14 +57,14 @@ const otpSlice = createSlice({
       })
       .addCase(generateOTP.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.code = action.payload;
+        state.otp = action.payload;
       })
       .addCase(generateOTP.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
-  }
+  },
 });
 
-export const { verifyOTP, resetOTP } = otpSlice.actions;
+export const { clearOTP } = otpSlice.actions;
 export default otpSlice.reducer;

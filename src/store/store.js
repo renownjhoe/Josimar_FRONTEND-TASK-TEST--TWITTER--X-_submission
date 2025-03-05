@@ -1,3 +1,4 @@
+// src/store/store.js
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import otpReducer from './slices/otpSlice';
@@ -5,6 +6,6 @@ import otpReducer from './slices/otpSlice';
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    otp: otpReducer
-  }
+    otp: otpReducer,
+  },
 });

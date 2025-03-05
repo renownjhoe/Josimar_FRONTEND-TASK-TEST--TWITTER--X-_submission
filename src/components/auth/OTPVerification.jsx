@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { verifyOTP } from '../../store/slices/otpSlice';
+import { generateOTP } from '../../store/slices/otpSlice';
 import Button from '../common/Button';
 import Loader from '../common/Loader';
 
@@ -11,7 +11,7 @@ const OTPVerification = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(verifyOTP(code));
+    dispatch(generateOTP(code));
   };
 
   return (

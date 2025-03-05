@@ -1,3 +1,4 @@
+// src/App.js
 import { store } from './store/store';
 import { Provider } from 'react-redux';
 import Login from './components/auth/Login';
@@ -6,7 +7,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import CallbackHandler from './components/auth/CallbackHandler';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css'
+import './App.css';
 
 const App = () => (
   <Provider store={store}>

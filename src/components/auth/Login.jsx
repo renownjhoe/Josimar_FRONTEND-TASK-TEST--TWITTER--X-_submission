@@ -1,12 +1,27 @@
 // src/components/auth/Login.jsx
+import { useDispatch, useSelector } from 'react-redux';
 import { TwitterIcon } from '../common/icons/TwitterIcon';
-import { TwitterLogin } from 'react-twitter-auth';
+import { requestToken } from '../../store/slices/authSlice';
 import Button from '../common/Button';
-import { REACT_APP_TWITTER_CLIENT_ID, REACT_APP_REDIRECT_URI } from '../../utils/constants';
+import Loader from '../common/Loader';
+import { AUTHORIZE_URL } from '../../utils/constants';
+import { useState } from 'react';
 
 const Login = () => {
-  const handleLogin = () => {
-    window.location.href = `https://x.com/i/oauth2/authorize?response_type=code&client_id=${REACT_APP_TWITTER_CLIENT_ID}&redirect_uri=${REACT_APP_REDIRECT_URI}&scope=dm.write`;
+  const dispatch = useDispatch();
+  const { isLoading, error, oauthToken } = useSelector((state) => state.auth);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  const handleLogin = async () => {
+    try {
+      const result = await dispatch(requestToken()).unwrap();
+      if (result.oauth_token) {
+        window.location.href = `${AUTHORIZE_URL}?oauth_token=${result.oauth_token}`;
+      }
+    } catch (err) {
+      console.error('Failed to initiate login:', err);
+      setErrorMessage(err.message || 'Failed to initiate login');
+    }
   };
 
   return (
@@ -22,17 +37,31 @@ const Login = () => {
 
         <Button 
           onClick={handleLogin} 
+          disabled={isLoading}
           className="w-full group transition-all duration-200 hover:bg-blue-50"
         >
           <div className="flex items-center justify-center space-x-2">
-            <TwitterIcon className="w-6 h-6 text-blue-500 group-hover:text-blue-600" />
-            <span className="text-blue-600 group-hover:text-blue-700 font-medium">
-              Continue with Twitter
-            </span>
+            {isLoading ? (
+              <Loader className="w-6 h-6 text-blue-500" />
+            ) : (
+              <>
+                <TwitterIcon className="w-6 h-6 text-blue-500 group-hover:text-blue-600" />
+                <span className="text-blue-600 group-hover:text-blue-700 font-medium">
+                  Continue with Twitter
+                </span>
+              </>
+            )}
           </div>
         </Button>
+
+        {errorMessage && (
+          <div className="text-center p-4 bg-red-50 rounded-lg">
+            <p className="text-sm text-red-600">{errorMessage}</p>
+          </div>
+        )}
+
         <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
-          <p className="text-sm text-white">
+          <p className="text-sm text-black">
             We'll send a 6-digit verification code to your Twitter DMs
           </p>
         </div>

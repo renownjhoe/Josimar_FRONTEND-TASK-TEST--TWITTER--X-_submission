@@ -1,7 +1,8 @@
+// src/components/auth/CallbackHandler.jsx
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { twitterLogin } from '../../store/slices/authSlice';
+import { accessToken } from '../../store/slices/authSlice';
 import { generateOTP } from '../../store/slices/otpSlice';
 import Loader from '../common/Loader';
 
@@ -9,37 +10,32 @@ const CallbackHandler = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { token, isLoading: authLoading } = useSelector((state) => state.auth);
-//   const { isLoading: otpLoading } = useSelector((state) => state.otp);
 
   useEffect(() => {
     const handleAuthCallback = async () => {
-      const code = new URLSearchParams(window.location.search).get('code');
-      
-      if (!code) {
-        navigate('/');
+      const urlParams = new URLSearchParams(window.location.search);
+      const oauth_token = urlParams.get('oauth_token');
+      const oauth_verifier = urlParams.get('oauth_verifier');
+    
+      if (!oauth_token || !oauth_verifier) {
+        navigate('/?error=missing_parameters');
         return;
       }
-
+    
       try {
-        // Exchange code for Twitter access token
-        dispatch(twitterLogin(code));
+        await dispatch(accessToken({ oauth_token, oauth_verifier })).unwrap();
+        if (token) {
+          await dispatch(generateOTP()).unwrap();
+          navigate('/otp');
+        }
       } catch (error) {
         console.error('Authentication failed:', error);
-        navigate('/');
+        navigate('/?error=authentication_failed&message=' + encodeURIComponent(error.message || 'Unknown error'));
       }
     };
 
     handleAuthCallback();
-  }, [dispatch, navigate]);
-
-  useEffect(() => {
-    if (token && !authLoading) {
-      dispatch(generateOTP(token))
-        .unwrap()
-        .then(() => navigate('/otp'))
-        .catch(() => navigate('/'));
-    }
-  }, [token, authLoading, dispatch, navigate]);
+  }, [dispatch, navigate, token]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
