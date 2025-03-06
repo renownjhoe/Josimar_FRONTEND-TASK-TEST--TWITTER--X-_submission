@@ -1,9 +1,7 @@
 // src/store/slices/otpSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
-// Backend API base URL (adjust if deployed)
-const BACKEND_API_URL = 'https://backend-production-91f4.up.railway.app';
+import {BACKEND_API_URL} from '../../utils/constants';
 
 // Generate and send OTP via DM
 export const generateOTP = createAsyncThunk(
