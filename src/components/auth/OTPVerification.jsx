@@ -37,7 +37,7 @@ const OTPVerification = () => {
           
           {error && <p className="text-red-500 text-sm">{error}</p>}
           
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading} >
             {isLoading ? <Loader /> : 'Verify Code'}
           </Button>
         </form>

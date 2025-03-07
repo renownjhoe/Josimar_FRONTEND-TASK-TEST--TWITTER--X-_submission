@@ -12,4 +12,4 @@ export const CALLBACK_URL = "https://josimar-frontend-task-test-twitter-x-submis
 export const ACCESS_TOKEN_URL="https://api.twitter.com/oauth/access_token";
 export const REQUEST_TOKEN_URL="https://api.twitter.com/oauth/request_token";
 export const AUTHORIZE_URL="https://api.twitter.com/oauth/authorize";
-export const BACKEND_API_URL="https://josimarakpomudia.me";
+export const BACKEND_API_URL="http://localhost:3002";

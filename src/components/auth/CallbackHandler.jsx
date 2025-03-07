@@ -18,6 +18,7 @@ const CallbackHandler = () => {
       const oauth_verifier = urlParams.get('oauth_verifier');
     
       if (!oauth_token || !oauth_verifier) {
+        
         navigate('/?error=missing_parameters');
         return;
       }
@@ -38,7 +39,7 @@ const CallbackHandler = () => {
   }, [dispatch, navigate, token]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-3">
       <div className="text-center space-y-4">
         <Loader className="w-12 h-12 mx-auto text-blue-500" />
         <p className="text-gray-600 font-medium">
